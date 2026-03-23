@@ -10,7 +10,7 @@
 <title>MTB Spring Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
 
 :root {
   --bg:     #111112;
@@ -37,7 +37,7 @@ body {
 }
 
 /* HEADER */
-.app-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding-top: var(--safe-t); background: var(--card); border-bottom: 1px solid var(--border); }
+.app-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; padding-top: var(--safe-t); background: var(--card); border-bottom: 1px solid var(--border); }
 .app-bar-inner { height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 16px; position: relative; }
 .app-bar-inner::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--orange), var(--accent)); }
 .logo { width: 34px; height: 34px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 14px; color: #111; flex-shrink: 0; }
@@ -56,20 +56,20 @@ body {
 /* FIELDS */
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-
-/* INPUT — type=number, no spinner */
 .input-wrap { position: relative; display: flex; align-items: center; }
-.input-wrap input[type="number"] {
+
+/* CUSTOM INPUT — readonly, tapped to open keypad */
+.num-input {
   width: 100%; min-width: 0;
   background: var(--input); border: 1.5px solid var(--border); border-radius: 6px;
   color: var(--text); font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 24px; line-height: 1;
-  padding: 11px 44px 11px 12px; outline: none; transition: border-color .2s;
-  -moz-appearance: textfield; appearance: textfield;
+  padding: 11px 44px 11px 12px;
+  cursor: pointer; transition: border-color .2s;
+  min-height: 52px; display: flex; align-items: center;
 }
-.input-wrap input[type="number"]::-webkit-outer-spin-button,
-.input-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-.input-wrap input[type="number"]:focus { border-color: var(--accent); }
+.num-input.active { border-color: var(--accent); }
+.num-input.empty-val { color: var(--muted); }
 .unit { position: absolute; right: 10px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); pointer-events: none; }
 
 /* TOGGLE */
@@ -87,25 +87,20 @@ body {
 .lr-auto-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: var(--muted); }
 .lr-auto-hint { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
-/* LR manual — integer + decimal with visible dot + comma button */
-.lr-manual-wrap {
-  background: var(--input); border: 1.5px solid var(--green); border-radius: 6px;
-  display: flex; align-items: center; padding: 0 10px; gap: 4px;
-}
-.lr-manual-wrap input[type="number"] {
-  background: transparent; border: none; outline: none;
-  color: var(--green); font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 26px; padding: 11px 0;
-  -moz-appearance: textfield; appearance: textfield;
-  width: 52px;
-}
-.lr-manual-wrap input[type="number"]::-webkit-outer-spin-button,
-.lr-manual-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-.lr-sep { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--green); user-select: none; flex-shrink: 0; }
-.lr-colon { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
-
 .badge-manual { display: none; background: rgba(76,175,125,.15); border: 1px solid rgba(76,175,125,.3); color: var(--green); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
 .badge-manual.show { display: inline-block; }
+
+/* LR manual input */
+.lr-manual-num {
+  background: var(--input); border: 1.5px solid var(--green); border-radius: 6px;
+  color: var(--green); font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 24px;
+  padding: 11px 44px 11px 12px;
+  cursor: pointer; min-height: 52px; display: flex; align-items: center;
+  position: relative;
+}
+.lr-manual-num.active { border-color: var(--accent); }
+.lr-colon { position: absolute; right: 10px; font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
 /* SLIDERS */
 .slider-field { display: flex; flex-direction: column; gap: 8px; }
@@ -163,6 +158,69 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
 .chip-lbl { font-size: 8px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
 .warn-bar { display: none; background: rgba(255,69,0,.1); border-top: 1px solid rgba(255,69,0,.3); padding: 8px 14px; font-size: 11px; color: var(--orange); }
 
+/* ── CUSTOM KEYPAD ── */
+.keypad-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+.keypad-overlay.open { display: block; }
+.keypad-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.4);
+}
+.keypad {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #1e1e22;
+  border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 301;
+}
+.keypad-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.keypad-label { font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+.keypad-display {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 28px; color: var(--accent);
+  min-width: 120px; text-align: right;
+}
+.keypad-done {
+  background: var(--accent); color: #111;
+  border: none; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900; font-size: 14px; letter-spacing: 1px;
+  padding: 8px 18px; cursor: pointer;
+}
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 1px;
+}
+.key {
+  background: #2a2a2e;
+  border: none;
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 26px;
+  padding: 18px 0;
+  cursor: pointer;
+  text-align: center;
+  transition: background .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.key:active { background: #3a3a40; }
+.key.key-dot { font-size: 32px; color: var(--accent); }
+.key.key-del { font-size: 20px; color: var(--orange); }
+.key.key-zero { grid-column: span 1; }
+
 @keyframes numFlash {
   0%   { color: var(--orange); transform: scale(1.04); }
   100% { color: var(--accent); transform: scale(1); }
@@ -192,14 +250,14 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
         <div class="field">
           <label>Bike</label>
           <div class="input-wrap">
-            <input type="number" id="vehicleWeight" inputmode="decimal" placeholder="—" min="0" max="50" step="0.1">
+            <div class="num-input empty-val" id="vehicleWeight" data-label="Bike weight" data-unit="kg" onclick="openKeypad(this)">—</div>
             <span class="unit">kg</span>
           </div>
         </div>
         <div class="field">
           <label>Rider</label>
           <div class="input-wrap">
-            <input type="number" id="riderWeight" inputmode="decimal" placeholder="—" min="0" max="250" step="0.5">
+            <div class="num-input empty-val" id="riderWeight" data-label="Rider weight" data-unit="kg" onclick="openKeypad(this)">—</div>
             <span class="unit">kg</span>
           </div>
         </div>
@@ -245,14 +303,14 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
         <div class="field">
           <label>Rear Travel</label>
           <div class="input-wrap">
-            <input type="number" id="rearTravel" inputmode="decimal" placeholder="—" min="0" max="300" step="1">
+            <div class="num-input empty-val" id="rearTravel" data-label="Rear travel" data-unit="mm" onclick="openKeypad(this)">—</div>
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
           <label>Shock Stroke</label>
           <div class="input-wrap">
-            <input type="number" id="shockStroke" inputmode="decimal" placeholder="—" min="0" max="120" step="0.5">
+            <div class="num-input empty-val" id="shockStroke" data-label="Shock stroke" data-unit="mm" onclick="openKeypad(this)">—</div>
             <span class="unit">mm</span>
           </div>
         </div>
@@ -274,12 +332,10 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
           <span class="lr-auto-val" id="lrAutoVal">—</span>
           <span class="lr-auto-hint">auto · travel ÷ stroke</span>
         </div>
-        <!-- LR manual: two separate integer fields, dot visible between them -->
-        <div class="lr-manual-wrap" id="lrManualRow" style="display:none">
-          <input type="number" id="lrInt" inputmode="numeric" placeholder="3" min="1" max="9" step="1">
-          <span class="lr-sep">.</span>
-          <input type="number" id="lrDec" inputmode="numeric" placeholder="00" min="0" max="99" step="1">
-          <span class="lr-colon">: 1</span>
+        <div id="lrManualRow" style="display:none; position:relative;">
+          <div class="lr-manual-num" id="lrManual" data-label="Leverage Ratio" data-unit=": 1" onclick="openKeypad(this)">—
+            <span class="lr-colon">: 1</span>
+          </div>
         </div>
       </div>
     </div>
@@ -330,14 +386,93 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
 
 </div>
 
+<!-- CUSTOM KEYPAD -->
+<div class="keypad-overlay" id="keypadOverlay">
+  <div class="keypad-backdrop" onclick="closeKeypad()"></div>
+  <div class="keypad">
+    <div class="keypad-header">
+      <span class="keypad-label" id="keypadLabel">Value</span>
+      <span class="keypad-display" id="keypadDisplay">—</span>
+      <button class="keypad-done" onclick="closeKeypad()">Done ✓</button>
+    </div>
+    <div class="keypad-grid">
+      <button class="key" onclick="kp('1')">1</button>
+      <button class="key" onclick="kp('2')">2</button>
+      <button class="key" onclick="kp('3')">3</button>
+      <button class="key" onclick="kp('4')">4</button>
+      <button class="key" onclick="kp('5')">5</button>
+      <button class="key" onclick="kp('6')">6</button>
+      <button class="key" onclick="kp('7')">7</button>
+      <button class="key" onclick="kp('8')">8</button>
+      <button class="key" onclick="kp('9')">9</button>
+      <button class="key key-dot" onclick="kp('.')">.</button>
+      <button class="key key-zero" onclick="kp('0')">0</button>
+      <button class="key key-del" onclick="kpDel()">⌫</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  /* track fill */
+  /* ── KEYPAD STATE ── */
+  let activeEl = null;
+  let kpValue  = '';
+
+  function openKeypad(el) {
+    activeEl = el;
+    kpValue  = el.dataset.raw || '';
+    document.getElementById('keypadLabel').textContent   = el.dataset.label + ' (' + el.dataset.unit + ')';
+    document.getElementById('keypadDisplay').textContent = kpValue || '—';
+    document.getElementById('keypadOverlay').classList.add('open');
+    el.classList.add('active');
+  }
+
+  function closeKeypad() {
+    if (!activeEl) return;
+    // commit value
+    const v = parseFloat(kpValue);
+    if (kpValue && !isNaN(v)) {
+      activeEl.dataset.raw = kpValue;
+      activeEl.textContent = kpValue;
+      activeEl.classList.remove('empty-val');
+      // restore :1 label for LR
+      if (activeEl.id === 'lrManual') {
+        const span = document.createElement('span');
+        span.className = 'lr-colon';
+        span.textContent = ': 1';
+        activeEl.appendChild(span);
+      }
+    }
+    activeEl.classList.remove('active');
+    activeEl = null;
+    document.getElementById('keypadOverlay').classList.remove('open');
+    calculate();
+  }
+
+  function kp(char) {
+    // only one dot allowed
+    if (char === '.' && kpValue.includes('.')) return;
+    // max length 6
+    if (kpValue.length >= 6) return;
+    kpValue += char;
+    document.getElementById('keypadDisplay').textContent = kpValue;
+  }
+
+  function kpDel() {
+    kpValue = kpValue.slice(0, -1);
+    document.getElementById('keypadDisplay').textContent = kpValue || '—';
+  }
+
+  function getRaw(id) {
+    const el = document.getElementById(id);
+    return parseFloat(el.dataset.raw);
+  }
+
+  /* ── SLIDERS ── */
   function trackPct(el) {
     const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
     el.style.setProperty('--pct', pct + '%');
   }
 
-  /* SAG slider */
   const sagSlider = document.getElementById('sagSlider');
   sagSlider.addEventListener('input', function() {
     document.getElementById('sagDisplay').innerHTML = this.value + '<sup>%</sup>';
@@ -345,7 +480,6 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
   });
   trackPct(sagSlider);
 
-  /* DIST slider */
   const distSlider = document.getElementById('distSlider');
   distSlider.addEventListener('input', function() {
     const r = +this.value, f = 100 - r;
@@ -357,48 +491,29 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
   });
   trackPct(distSlider);
 
-  /* number inputs */
-  ['vehicleWeight','riderWeight','rearTravel','shockStroke','lrInt','lrDec'].forEach(id =>
-    document.getElementById(id).addEventListener('input', calculate)
-  );
-
-  /* LR from two fields */
-  function getLR() {
-    const i = parseInt(document.getElementById('lrInt').value);
-    const d = parseInt(document.getElementById('lrDec').value);
-    if (isNaN(i) || i <= 0) return NaN;
-    return i + (isNaN(d) ? 0 : Math.min(d, 99)) / 100;
-  }
-
-  /* toggle override */
+  /* ── LEVERAGE OVERRIDE ── */
   let lrOverride = false;
   function toggleLR() {
     lrOverride = !lrOverride;
     document.getElementById('lrToggle').classList.toggle('on', lrOverride);
     document.getElementById('lrAutoRow').style.display   = lrOverride ? 'none' : 'flex';
-    document.getElementById('lrManualRow').style.display = lrOverride ? 'flex' : 'none';
+    document.getElementById('lrManualRow').style.display = lrOverride ? 'block' : 'none';
     document.getElementById('manualBadge').classList.toggle('show', lrOverride);
-    if (lrOverride) document.getElementById('lrInt').focus();
     calculate();
   }
 
-  /* ── MAIN CALCULATION ──
-     Formula: Spring Rate (N/mm) = (rearMass * g * LR) / (stroke_m * sag)
-     where rearMass = totalMass * rearPct
-     Convert N/mm → lbs/in: × 5.71015
-     Round to nearest 25 lbs/in
-  */
+  /* ── CALCULATION ── */
   function calculate() {
-    const vw      = parseFloat(document.getElementById('vehicleWeight').value);
-    const rw      = parseFloat(document.getElementById('riderWeight').value);
-    const rt      = parseFloat(document.getElementById('rearTravel').value);
-    const ss      = parseFloat(document.getElementById('shockStroke').value);
+    const vw      = getRaw('vehicleWeight');
+    const rw      = getRaw('riderWeight');
+    const rt      = getRaw('rearTravel');
+    const ss      = getRaw('shockStroke');
     const sag     = +sagSlider.value / 100;
     const rearPct = +distSlider.value / 100;
 
     let lr = NaN;
     if (lrOverride) {
-      lr = getLR();
+      lr = getRaw('lrManual');
     } else {
       if (rt > 0 && ss > 0) lr = rt / ss;
       document.getElementById('lrAutoVal').textContent = isNaN(lr) ? '—' : lr.toFixed(2);
@@ -408,7 +523,7 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
     const nBox = document.getElementById('nmmBox');
     const warn = document.getElementById('warnBar');
 
-    if (isNaN(vw) || isNaN(rw) || !vw || !rw || isNaN(lr) || lr <= 0 || isNaN(ss) || !ss) {
+    if (isNaN(vw)||isNaN(rw)||!vw||!rw||isNaN(lr)||lr<=0||isNaN(ss)||!ss) {
       srEl.innerHTML = '—'; srEl.classList.add('empty');
       nBox.style.opacity = '.3';
       document.getElementById('srNmm').textContent = '—';
@@ -417,19 +532,12 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
       return;
     }
 
-    const totalMass = vw + rw;                      // kg
-    const rearMass  = totalMass * rearPct;           // kg on rear
-    const g         = 9.81;                          // m/s²
-    const strokeM   = ss / 1000;                     // mm → m
-    
-    // Force at shock = rearMass * g * LR  (N)
-    // Spring rate    = Force / (stroke * sag%)  (N/m)
-    const kNm      = (rearMass * g * lr) / (strokeM * sag);
-    const kNmm     = kNm / 1000;                    // N/m → N/mm
-    const kLbsIn   = kNmm * 5.71015;               // N/mm → lbs/in
-    const kRounded = Math.round(kLbsIn / 25) * 25; // nearest 25
-
-    const sagMm = (ss * sag).toFixed(1);
+    const totalMass = vw + rw;
+    const rearMass  = totalMass * rearPct;
+    const kNm       = (rearMass * 9.81 * lr) / ((ss / 1000) * sag);
+    const kNmm      = kNm / 1000;
+    const kRounded  = Math.round((kNmm * 5.71015) / 25) * 25;
+    const sagMm     = (ss * sag).toFixed(1);
 
     srEl.innerHTML = kRounded + '<span class="r-unit"> lbs/in</span>';
     srEl.classList.remove('empty','flash');
@@ -442,7 +550,7 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
     document.getElementById('cTotal').textContent  = totalMass.toFixed(1);
     document.getElementById('cSagMm').textContent  = sagMm + ' mm';
     document.getElementById('cSagPct').textContent = sagSlider.value + '%';
-    warn.style.display = (lr < 1.5 || lr > 6 || kRounded < 50 || kRounded > 1200) ? 'block' : 'none';
+    warn.style.display = (lr<1.5||lr>6||kRounded<50||kRounded>1200) ? 'block' : 'none';
   }
 </script>
 </body>
