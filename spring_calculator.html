@@ -51,24 +51,25 @@ body {
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .card-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 10px 14px; border-bottom: 1px solid var(--border); }
 .card-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-
-/* GRID */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 /* FIELDS */
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-.input-wrap { position: relative; display: flex; align-items: center; }
 
-/* ALL inputs use type=tel — opens numeric pad on iOS, accepts comma */
-.input-wrap input[type="tel"] {
+/* INPUT — type=number, no spinner */
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-wrap input[type="number"] {
   width: 100%; min-width: 0;
   background: var(--input); border: 1.5px solid var(--border); border-radius: 6px;
   color: var(--text); font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 24px; line-height: 1;
   padding: 11px 44px 11px 12px; outline: none; transition: border-color .2s;
+  -moz-appearance: textfield; appearance: textfield;
 }
-.input-wrap input[type="tel"]:focus { border-color: var(--accent); }
+.input-wrap input[type="number"]::-webkit-outer-spin-button,
+.input-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.input-wrap input[type="number"]:focus { border-color: var(--accent); }
 .unit { position: absolute; right: 10px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); pointer-events: none; }
 
 /* TOGGLE */
@@ -86,17 +87,22 @@ body {
 .lr-auto-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; color: var(--muted); }
 .lr-auto-hint { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
-/* LR manual — two tel inputs */
-.lr-manual-wrap { display: flex; align-items: center; background: var(--input); border: 1.5px solid var(--green); border-radius: 6px; overflow: hidden; padding: 0 12px; }
-.lr-manual-wrap input[type="tel"] {
+/* LR manual — integer + decimal with visible dot + comma button */
+.lr-manual-wrap {
+  background: var(--input); border: 1.5px solid var(--green); border-radius: 6px;
+  display: flex; align-items: center; padding: 0 10px; gap: 4px;
+}
+.lr-manual-wrap input[type="number"] {
   background: transparent; border: none; outline: none;
   color: var(--green); font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 26px; line-height: 1; padding: 11px 0;
+  font-weight: 700; font-size: 26px; padding: 11px 0;
+  -moz-appearance: textfield; appearance: textfield;
+  width: 52px;
 }
-.lr-manual-wrap input#lrInt { width: 48px; text-align: right; }
-.lr-manual-wrap input#lrDec { width: 56px; text-align: left; }
-.lr-sep { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--green); padding: 0 2px; user-select: none; flex-shrink: 0; }
-.lr-colon { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-left: auto; padding-left: 8px; white-space: nowrap; flex-shrink: 0; }
+.lr-manual-wrap input[type="number"]::-webkit-outer-spin-button,
+.lr-manual-wrap input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.lr-sep { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--green); user-select: none; flex-shrink: 0; }
+.lr-colon { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
 
 .badge-manual { display: none; background: rgba(76,175,125,.15); border: 1px solid rgba(76,175,125,.3); color: var(--green); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
 .badge-manual.show { display: inline-block; }
@@ -129,7 +135,6 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
 .slider-ticks { display: flex; justify-content: space-between; }
 .slider-ticks span { font-size: 9px; color: var(--border); }
 .slider-ticks .hi { color: var(--accent); opacity: .7; }
-.slider-ticks .hi-g { color: var(--green); opacity: .7; }
 
 /* DIST BAR */
 .dist-bar { height: 8px; border-radius: 4px; overflow: hidden; display: flex; margin: 2px 0; }
@@ -187,14 +192,14 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
         <div class="field">
           <label>Bike</label>
           <div class="input-wrap">
-            <input type="tel" id="vehicleWeight" placeholder="—">
+            <input type="number" id="vehicleWeight" inputmode="decimal" placeholder="—" min="0" max="50" step="0.1">
             <span class="unit">kg</span>
           </div>
         </div>
         <div class="field">
           <label>Rider</label>
           <div class="input-wrap">
-            <input type="tel" id="riderWeight" placeholder="—">
+            <input type="number" id="riderWeight" inputmode="decimal" placeholder="—" min="0" max="250" step="0.5">
             <span class="unit">kg</span>
           </div>
         </div>
@@ -209,24 +214,24 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
       <div class="slider-field">
         <div class="slider-header">
           <label>Rear axle load</label>
-          <div class="slider-big-val" id="distDisplay">60<sup>%</sup></div>
+          <div class="slider-big-val" id="distDisplay">55<sup>%</sup></div>
         </div>
-        <input type="range" id="distSlider" min="40" max="75" value="60" step="1"
+        <input type="range" id="distSlider" min="40" max="75" value="55" step="1"
                style="--track-col:var(--accent); --thumb-glow:rgba(232,200,64,.2)">
         <div class="slider-ticks">
           <span>40%</span>
           <span class="hi">50%</span>
-          <span class="hi">60%</span>
+          <span class="hi">55%</span>
           <span class="hi">65%</span>
           <span>75%</span>
         </div>
         <div class="dist-bar">
-          <div class="dist-front" id="distFront" style="width:40%"></div>
-          <div class="dist-rear"  id="distRear"></div>
+          <div class="dist-front" id="distFront" style="width:45%"></div>
+          <div class="dist-rear"></div>
         </div>
         <div class="dist-labels">
-          <span class="dist-label front">Front <span id="distFrontPct">40</span>%</span>
-          <span class="dist-label rear">Rear <span id="distRearPct">60</span>%</span>
+          <span class="dist-label front">Front <span id="distFrontPct">45</span>%</span>
+          <span class="dist-label rear">Rear <span id="distRearPct">55</span>%</span>
         </div>
       </div>
     </div>
@@ -236,19 +241,18 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
   <div class="card">
     <div class="card-title">Shock Geometry</div>
     <div class="card-body">
-
       <div class="two-col">
         <div class="field">
           <label>Rear Travel</label>
           <div class="input-wrap">
-            <input type="tel" id="rearTravel" placeholder="—">
+            <input type="number" id="rearTravel" inputmode="decimal" placeholder="—" min="0" max="300" step="1">
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
           <label>Shock Stroke</label>
           <div class="input-wrap">
-            <input type="tel" id="shockStroke" placeholder="—">
+            <input type="number" id="shockStroke" inputmode="decimal" placeholder="—" min="0" max="120" step="0.5">
             <span class="unit">mm</span>
           </div>
         </div>
@@ -270,16 +274,14 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
           <span class="lr-auto-val" id="lrAutoVal">—</span>
           <span class="lr-auto-hint">auto · travel ÷ stroke</span>
         </div>
+        <!-- LR manual: two separate integer fields, dot visible between them -->
         <div class="lr-manual-wrap" id="lrManualRow" style="display:none">
-          <input type="tel" id="lrInt" placeholder="3" maxlength="1"
-                 oninput="this.value=this.value.replace(/\D/g,'').slice(0,1)">
+          <input type="number" id="lrInt" inputmode="numeric" placeholder="3" min="1" max="9" step="1">
           <span class="lr-sep">.</span>
-          <input type="tel" id="lrDec" placeholder="00" maxlength="2"
-                 oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)">
+          <input type="number" id="lrDec" inputmode="numeric" placeholder="00" min="0" max="99" step="1">
           <span class="lr-colon">: 1</span>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -329,12 +331,7 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
 </div>
 
 <script>
-  /* normalise: accept comma or dot as decimal separator */
-  function n(str) {
-    return parseFloat(String(str).replace(',', '.').replace(/[^\d.]/g, ''));
-  }
-
-  /* track fill for range sliders */
+  /* track fill */
   function trackPct(el) {
     const pct = ((+el.value - +el.min) / (+el.max - +el.min)) * 100;
     el.style.setProperty('--pct', pct + '%');
@@ -360,21 +357,20 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
   });
   trackPct(distSlider);
 
-  /* all tel inputs trigger calc */
+  /* number inputs */
   ['vehicleWeight','riderWeight','rearTravel','shockStroke','lrInt','lrDec'].forEach(id =>
     document.getElementById(id).addEventListener('input', calculate)
   );
 
-  /* build LR from two integer tel fields */
+  /* LR from two fields */
   function getLR() {
-    const i = parseInt(document.getElementById('lrInt').value) || 0;
-    const dStr = document.getElementById('lrDec').value;
-    const d = dStr === '' ? 0 : parseInt(dStr);
-    if (!i) return NaN;
+    const i = parseInt(document.getElementById('lrInt').value);
+    const d = parseInt(document.getElementById('lrDec').value);
+    if (isNaN(i) || i <= 0) return NaN;
     return i + (isNaN(d) ? 0 : Math.min(d, 99)) / 100;
   }
 
-  /* leverage override */
+  /* toggle override */
   let lrOverride = false;
   function toggleLR() {
     lrOverride = !lrOverride;
@@ -386,13 +382,18 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
     calculate();
   }
 
-  /* main calculation */
+  /* ── MAIN CALCULATION ──
+     Formula: Spring Rate (N/mm) = (rearMass * g * LR) / (stroke_m * sag)
+     where rearMass = totalMass * rearPct
+     Convert N/mm → lbs/in: × 5.71015
+     Round to nearest 25 lbs/in
+  */
   function calculate() {
-    const vw  = n(document.getElementById('vehicleWeight').value);
-    const rw  = n(document.getElementById('riderWeight').value);
-    const rt  = n(document.getElementById('rearTravel').value);
-    const ss  = n(document.getElementById('shockStroke').value);
-    const sag = +sagSlider.value / 100;
+    const vw      = parseFloat(document.getElementById('vehicleWeight').value);
+    const rw      = parseFloat(document.getElementById('riderWeight').value);
+    const rt      = parseFloat(document.getElementById('rearTravel').value);
+    const ss      = parseFloat(document.getElementById('shockStroke').value);
+    const sag     = +sagSlider.value / 100;
     const rearPct = +distSlider.value / 100;
 
     let lr = NaN;
@@ -416,13 +417,19 @@ input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; background: v
       return;
     }
 
-    const totalMass = vw + rw;
-    const rearMass  = totalMass * rearPct;
-    const forceN    = rearMass * 9.81 * lr;
-    const kNm       = forceN / ((ss / 1000) * sag);
-    const kNmm      = kNm / 1000;
-    const kRounded  = Math.round((kNmm * 5.71015) / 25) * 25;
-    const sagMm     = (ss * sag).toFixed(1);
+    const totalMass = vw + rw;                      // kg
+    const rearMass  = totalMass * rearPct;           // kg on rear
+    const g         = 9.81;                          // m/s²
+    const strokeM   = ss / 1000;                     // mm → m
+    
+    // Force at shock = rearMass * g * LR  (N)
+    // Spring rate    = Force / (stroke * sag%)  (N/m)
+    const kNm      = (rearMass * g * lr) / (strokeM * sag);
+    const kNmm     = kNm / 1000;                    // N/m → N/mm
+    const kLbsIn   = kNmm * 5.71015;               // N/mm → lbs/in
+    const kRounded = Math.round(kLbsIn / 25) * 25; // nearest 25
+
+    const sagMm = (ss * sag).toFixed(1);
 
     srEl.innerHTML = kRounded + '<span class="r-unit"> lbs/in</span>';
     srEl.classList.remove('empty','flash');
